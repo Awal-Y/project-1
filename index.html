@@ -4,11 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <script src="scripts/app.js"></script>
+  
   <link rel="stylesheet" href="styles/main.css">
   <title>Project 1!</title>
 </head>
 <body>
-  <h1>Hello world</h1>
+    <div class="wrap">
+        <header>Space Invaders</header>
+        <div class="game-wrapper">
+          <div class="game"></div>
+          <div class="congratulations">
+            <h1>Congratulations!</h1>
+            <h2>You won</h2>
+            <button class="btn" onclick="window.location.reload()">Restart</button>
+          </div>
+          <div class="game-over">
+            <h1>GAME OVER</h1>
+            <h2>You lost</h2>
+            <button class="btn" onclick="window.location.reload()">Restart</button>
+          </div>
+        </div>
+        <footer>Left & right keys to move, spacebar to shoot</footer>
+      </div>
 </body>
+<script src="scripts/app.js"></script>
 </html>
