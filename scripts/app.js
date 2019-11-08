@@ -1,4 +1,4 @@
-  
+// Variables created to be used inside function and control difficulty of game. 
 const keycodeLeft = 37
 const keycodeRight = 39
 const keycodeSpace = 32
@@ -9,14 +9,16 @@ const gameHeight = 800
 const playerWidth = 20
 const playerSpeed = 600.0
 const missileSpeed = 300.0
-const missileCooldown = 0.5
+const missileCooldown = 0.1
 
-const aliensRow = 8
+const aliensRow = 10
 const alienHorizontalPadding = 80
 const alienVerticalPadding = 70
 const alienVerticalSpacing = 80
 const alienCooldown = 6
+var score = 0
 
+// Starting position of the gamne. 
 const gameState = {
   lastTime: Date.now(),
   leftPressed: false,
@@ -31,6 +33,7 @@ const gameState = {
   gameOver: false
 }
 
+//Function that calculates when an image rectangle intersect with another rectangle on the grid. 
 function rectsIntersect(r1, r2) {
   return !(
     r2.left > r1.right ||
@@ -39,10 +42,13 @@ function rectsIntersect(r1, r2) {
     r2.bottom < r1.top
   )
 }
+
+//Sets position of elements
 function setPosition(e, x, y) {
   e.style.transform = `translate(${x}px, ${y}px)`
 }
 
+//Sets the border of the game so elements don't go off-grid
 function clamp(v, min, max) {
   if (v < min) {
     return min
@@ -53,12 +59,14 @@ function clamp(v, min, max) {
   }
 }
 
+//Random function to fire enemy bullets at random. 
 function rand(min, max) {
   if (min === undefined) min = 0
   if (max === undefined) max = 1
   return min + Math.random() * (max - min)
 }
 
+//Creates spaceship
 function createPlayer($container) {
   gameState.playerX = gameWidth / 2
   gameState.playerY = gameHeight - 50
@@ -69,12 +77,15 @@ function createPlayer($container) {
   setPosition($player, gameState.playerX, gameState.playerY)
 }
 
+//Removes player 
 function destroyPlayer($container, player) {
   $container.removeChild(player)
   gameState.gameOver = true
   //const audio =
   //Audio.play()
 }
+
+//Updates player position, shooting on the grid
 function updatePlayer(dt, $container) {
   if (gameState.leftPressed) {
     gameState.playerX -= dt * playerSpeed
@@ -101,6 +112,7 @@ function updatePlayer(dt, $container) {
   setPosition($player, gameState.playerX, gameState.playerY)
 }
 
+// Creates missile for shooting the aliens. 
 function createMissile($container, x, y) {
   const $element = document.createElement('img')
   $element.src = '/Users/awal.y/development/project-1/Images/missile1.png'
@@ -113,6 +125,7 @@ function createMissile($container, x, y) {
   setPosition($element, x, y)
 }
 
+//Updates position of missile on the grid. Determines when missile hits alien. 
 function updateMissiles(dt, $container) {
   const lasers = gameState.lasers
   for (let i = 0; i < lasers.length; i++) {
@@ -131,6 +144,7 @@ function updateMissiles(dt, $container) {
       if (rectsIntersect(r1, r2)) {
         destroyAlien($container, alien)
         destroyLaser($container, laser)
+        score += 10
         break
       }
     }
@@ -138,11 +152,13 @@ function updateMissiles(dt, $container) {
   gameState.lasers = gameState.lasers.filter(e => !e.isDead)
 }
 
+//Deletes laser from grid.
 function destroyLaser($container, laser) {
   $container.removeChild(laser.$element)
   laser.isDead = true
 }
 
+//Creates alien on the grid. 
 function createAlien($container, x, y) {
   const $element = document.createElement('img')
   $element.src = '/Users/awal.y/development/project-1/Images/predator.png'
@@ -154,6 +170,7 @@ function createAlien($container, x, y) {
   setPosition($element, x, y)
 }
 
+//Updates alien on the grid, deletes itsel when hit with missile, shoots alien missile. 
 function updateAliens(dt, $container) {
   const dx = Math.sin(gameState.lastTime / 1000.0) * 50
   const dy = Math.cos(gameState.lastTime / 1000.0) * 10
@@ -174,11 +191,13 @@ function updateAliens(dt, $container) {
   gameState.aliens = gameState.aliens.filter(e => !e.isDead)
 }
 
+//Deletes alien from grid.
 function destroyAlien($container, alien) {
   $container.removeChild(alien.$element)
   alien.isDead = true
 }
 
+//Creates Alien Missile. 
 function createAlienMissile($container, x, y) {
   const $element = document.createElement('img')
   $element.src = '/Users/awal.y/development/project-1/Images/bluelaser.png'
@@ -189,6 +208,7 @@ function createAlienMissile($container, x, y) {
   setPosition($element, x, y)
 }
 
+//Shoots laser from aliens on the grid. Determines when an alien bullet hits the spaceship
 function updateAlienLaser(dt, $container) {
   const lasers = gameState.alienLasers
   for (let i = 0; i < lasers.length; i++) {
@@ -196,6 +216,7 @@ function updateAlienLaser(dt, $container) {
     laser.y += dt * missileSpeed
     if (laser.y > gameHeight) {
       destroyLaser($container, laser)
+      
     }
     setPosition(laser.$element, laser.x, laser.y)
     const r1 = laser.$element.getBoundingClientRect()
@@ -203,12 +224,15 @@ function updateAlienLaser(dt, $container) {
     const r2 = player.getBoundingClientRect()
     if (rectsIntersect(r1, r2)) {
       destroyPlayer($container, player)
+      
       break
     }
   }
 
   gameState.alienLasers = gameState.alienLasers.filter(e => !e.isDead)
 }
+
+// Draws initial state of the game with spaceship and aliens. 
 function init() {
   const $container = document.querySelector('.game')
   createPlayer($container)
@@ -220,15 +244,34 @@ function init() {
       const x = i * alienSpacing + alienHorizontalPadding
       createAlien($container, x, y)
     }
+    
   }
 }
 
+//Determines when a player has won. 
+function playerWin() {
+  return gameState.aliens.length === 0
+}
+
+function scoreBoard() {
+  var scoreElement = document.getElementById('score')
+  scoreElement.textContent = score
+}
+
+//Updates the game with animation frame function. 
 function update() {
   const currentTime = Date.now()
   const dt = (currentTime - gameState.lastTime) / 1000.0
 
   if (gameState.gameOver) {
     document.querySelector('.game-over').style.display = 'block'
+    document.getElementById('score').textContent = score
+    return 
+  }
+
+  if (playerWin()) {
+    document.querySelector('.congratulations').style.display = 'block'
+    document.getElementById('score').textContent = score
     return 
   }
   const $container = document.querySelector('.game')
@@ -236,11 +279,13 @@ function update() {
   updateMissiles(dt, $container)
   updateAliens(dt, $container)
   updateAlienLaser(dt, $container)
+  scoreBoard()
 
   gameState.lastTime = currentTime
   window.requestAnimationFrame(update)
 }
 
+//Controls of the game
 function onKeyDown(e) {
   if (e.keyCode === keycodeLeft) {
     gameState.leftPressed = true
@@ -251,6 +296,7 @@ function onKeyDown(e) {
   }
 }
 
+//Controls of the game
 function onKeyUp(e) {
   if (e.keyCode === keycodeLeft) {
     gameState.leftPressed = false
