@@ -265,13 +265,12 @@ function update() {
 
   if (gameState.gameOver) {
     document.querySelector('.game-over').style.display = 'block'
-    document.getElementById('score').textContent = score
+    
     return 
   }
 
   if (playerWin()) {
     document.querySelector('.congratulations').style.display = 'block'
-    document.getElementById('score').textContent = score
     return 
   }
   const $container = document.querySelector('.game')
